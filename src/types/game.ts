@@ -16,6 +16,11 @@ export type Point = {
     y: number;
 };
 
+export type Vector = {
+    x: number;
+    y: number;
+};
+
 export type Velocity = {
     direction: Point;
     speed: number;
@@ -46,4 +51,5 @@ export type Player = {
     init_position: Point;
     team_side: Side;
     velocity: Velocity;
+    color?: string;
 };
