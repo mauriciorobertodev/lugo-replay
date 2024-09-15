@@ -1,6 +1,7 @@
 export type GameServerState = 'OVER' | 'GET_READY' | 'PLAYING';
 
 export type GameSnapshot = {
+    uuid: string;
     state: GameServerState;
     turn: number;
     ball: Ball;
@@ -43,6 +44,7 @@ export type Team = {
     name: string;
     side: Side;
     players: Player[];
+    score: number;
 };
 
 export type Player = {

@@ -16,12 +16,18 @@ type UseBaseStageValues = {
     startStagePos: { x: number; y: number };
     masterKeyPressed: boolean;
 
+    backgroundColor: string;
+    setBackgroundColor: React.Dispatch<React.SetStateAction<string>>;
+
+    showBackground: boolean;
+
     setZoom(zoom: number): void;
     setZoomInDecimal(zoom: number): void;
     moveTo(x: number, y: number): void;
     scaleForScreen(width: number, height: number, padding?: number): number;
     centerScreenOnObject(x: number, y: number, width: number, height: number): void;
     getMouseWorldPosition(): Point;
+    printScreen(withBackground?: boolean): void;
 };
 
 export const BaseStageContext = createContext<UseBaseStageValues | undefined>(undefined);
@@ -35,6 +41,8 @@ export function BaseStageProvider({ children }: PropsWithChildren) {
     const [startStagePos, setStartStagePos] = useState({ x: 0, y: 0 });
     const [masterKeyPressed, setIsMasterKeyPressed] = useState(false);
     const [zoomLevel, setZoomLevel] = useState(100);
+    const [backgroundColor, setBackgroundColor] = useState<string>('#0f172a');
+    const [showBackground, setShowBackground] = useState(false);
 
     const minZoom = 5;
     const maxZoom = 500;
@@ -172,6 +180,25 @@ export function BaseStageProvider({ children }: PropsWithChildren) {
         return { x: canvasPos.x, y: -canvasPos.y };
     };
 
+    function printScreen(withBackground: boolean = false) {
+        if (!stageRef.current) return;
+        setShowBackground(withBackground);
+
+        setTimeout(() => {
+            if (!stageRef.current) return;
+            const dataURL = stageRef.current.toDataURL();
+
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = 'lugo-replay-screenshot.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            setShowBackground(false);
+        }, 50);
+    }
+
     useEffect(() => {
         window.addEventListener('wheel', handleWheel);
         window.addEventListener('mousedown', handleMouseDown);
@@ -204,12 +231,17 @@ export function BaseStageProvider({ children }: PropsWithChildren) {
                 startStagePos,
                 masterKeyPressed,
 
+                showBackground,
+                backgroundColor,
+                setBackgroundColor,
+
                 setZoom,
                 setZoomInDecimal,
                 moveTo,
                 scaleForScreen,
                 centerScreenOnObject,
                 getMouseWorldPosition,
+                printScreen,
             }}
         >
             {children}

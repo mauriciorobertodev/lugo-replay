@@ -17,6 +17,7 @@ function App() {
             )}
             {fileStatus === 'loading' && (
                 <div className="max-w-lg w-full flex flex-col items-center justify-center gap-4">
+                    <div className="text-5xl font-bold">{progress}%</div>
                     <Progress value={progress} className="w-full h-4" />
                     <div className="flex gap-3 items-center">
                         <Loader2Icon className="animate-spin h-4 w-4" /> Carregando...

@@ -1,16 +1,9 @@
 import { Arc, Circle, Group, Rect, Text } from 'react-konva';
-import {
-    FIELD_WIDTH,
-    GOALKEEPER_NUMBER,
-    GOALKEEPER_WIDTH,
-    PLAYER_RADIUS,
-    PLAYER_SIZE,
-} from '@/lib/specs';
+import { GOALKEEPER_NUMBER, GOALKEEPER_WIDTH, PLAYER_RADIUS, PLAYER_SIZE } from '@/lib/specs';
 import { blue, white } from '@/lib/tailwindcss';
 import { getAngleOfVectorInRadians, radiansToDegrees } from '@/lib/math';
 import Konva from 'konva';
 import { Player, Point } from '@/types/game';
-import React from 'react';
 
 export type PlayerState = {
     number: number;
@@ -34,7 +27,6 @@ export function PlayerKonva({
 }) {
     const textDimensions = PLAYER_RADIUS + 30;
 
-    const side = player.team_side;
     const position = player.position;
     const direction = { x: player.velocity.direction.x ?? 0, y: player.velocity.direction.y ?? 0 };
     const number = player.number;
