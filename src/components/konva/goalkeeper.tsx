@@ -1,8 +1,6 @@
-import { Arc, Circle, Group, KonvaNodeEvents, Rect, Text } from 'react-konva';
+import { Group, KonvaNodeEvents, Rect } from 'react-konva';
 import { SPECS } from '@/lugo';
-import { white } from '@/lib/tailwindcss';
 import { Player, Point } from '@/lugo';
-import { radiansToDegrees } from '@/lib/math';
 import Konva from 'konva';
 
 export type PlayerState = {

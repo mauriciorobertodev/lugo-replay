@@ -1,4 +1,3 @@
-import { green, red, yellow } from '@/lib/tailwindcss';
 import { Ball } from './ball';
 import { Player } from './player';
 import { Point } from './point';
