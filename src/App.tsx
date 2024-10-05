@@ -4,9 +4,10 @@ import { Loader2Icon } from 'lucide-react';
 import { Replay } from './replay';
 import { MenuReplay } from './components/menu-replay';
 import { useReplay } from './hooks/use-replay';
+import { InfoReplay } from './components/info-replay';
 
 function App() {
-    const { handleDrop, progress, currentGameSnapshot, fileStatus } = useReplay();
+    const { handleDrop, progress, fileStatus } = useReplay();
 
     return (
         <div className="h-full w-full flex items-center justify-center max-h-full ">
@@ -30,7 +31,8 @@ function App() {
                 //     {(new Blob([JSON.stringify(gameSnapshots)]).size / (1024 * 1024)).toFixed(2)} MB
                 // </div>
                 <>
-                    <Replay game_snapshot={currentGameSnapshot} />
+                    <InfoReplay />
+                    <Replay />
                     <MenuReplay />
                 </>
             )}

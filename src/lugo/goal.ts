@@ -1,4 +1,4 @@
-import { Point, Side, SPECS } from '@/lugo';
+import { FIELD, Point, Side, SPECS } from '@/lugo';
 import { IGoal } from './interfaces/goal';
 
 export class Goal implements IGoal {
@@ -41,5 +41,13 @@ export class Goal implements IGoal {
             new Point(SPECS.MAX_X_COORDINATE, SPECS.GOAL_MAX_Y),
             new Point(SPECS.MAX_X_COORDINATE, SPECS.GOAL_MIN_Y),
         );
+    }
+
+    static HOME_CENTER(): Point {
+        return new Point(0, FIELD.CENTER_Y);
+    }
+
+    static AWAY_CENTER(): Point {
+        return new Point(FIELD.MAX_X, FIELD.CENTER_Y);
     }
 }

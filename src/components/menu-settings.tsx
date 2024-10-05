@@ -2,7 +2,6 @@ import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -15,11 +14,24 @@ import { useReplay } from '@/hooks/use-replay';
 import { HexColorPicker } from 'react-colorful';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useBaseStage } from '@/hooks/use-base-stage';
+import { Switch } from './ui/switch';
 
 const gameSpeedValues = [0.25, 0.5, 0.75, 1, 2, 3, 4];
 
 export function MenuSettings() {
-    const { gameSpeed, setGameSpeed } = useReplay();
+    const {
+        gameSpeed,
+        setGameSpeed,
+        showBallInfo,
+        setShowBallInfo,
+        showBallDirection,
+        setShowBallDirection,
+
+        showHomeInfo,
+        setShowHomeInfo,
+        showAwayInfo,
+        setShowAwayInfo,
+    } = useReplay();
     const { backgroundColor, setBackgroundColor } = useBaseStage();
     return (
         <Dialog>
@@ -31,9 +43,9 @@ export function MenuSettings() {
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>Configurações</DialogTitle>
-                    <DialogDescription>
+                    {/* <DialogDescription>
                         ATENÇÃO: Para gravar os movimentos é necessário permissão.
-                    </DialogDescription>
+                    </DialogDescription> */}
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="space-y-2">
@@ -66,6 +78,45 @@ export function MenuSettings() {
                                     <span>{backgroundColor}</span>
                                 </PopoverContent>
                             </Popover>
+                        </Label>
+                    </div>
+                    <hr />
+                    <div className="space-y-2">
+                        <Label className="flex items-center justify-between">
+                            <span>Exibir posição e velocidade da bola</span>
+                            <Switch
+                                checked={showBallInfo}
+                                onCheckedChange={(v) => setShowBallInfo(v)}
+                            />
+                        </Label>
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="flex items-center justify-between">
+                            <span>Exibir direção da bola</span>
+                            <Switch
+                                checked={showBallDirection}
+                                onCheckedChange={(v) => setShowBallDirection(v)}
+                            />
+                        </Label>
+                    </div>
+                    <hr />
+                    <div className="space-y-2">
+                        <Label className="flex items-center justify-between">
+                            <span>HOME - Exibir posição e velocidade</span>
+                            <Switch
+                                checked={showHomeInfo}
+                                onCheckedChange={(v) => setShowHomeInfo(v)}
+                            />
+                        </Label>
+                    </div>
+                    <hr />
+                    <div className="space-y-2">
+                        <Label className="flex items-center justify-between">
+                            <span>AWAY - Exibir posição e velocidade</span>
+                            <Switch
+                                checked={showAwayInfo}
+                                onCheckedChange={(v) => setShowAwayInfo(v)}
+                            />
                         </Label>
                     </div>
                 </div>

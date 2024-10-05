@@ -1,21 +1,21 @@
-import { Stage, Layer, Rect } from 'react-konva';
+import { Stage, Layer, Rect, Circle } from 'react-konva';
 import { FieldKonva } from '@/components/konva/field';
 import { useBaseStage } from '@/hooks/use-base-stage';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useWindowSize } from '@uidotdev/usehooks';
 import { PlayerKonva } from './components/konva/player';
 import { linearInterpolation2D } from './lib/math';
-import { blue, green } from './lib/tailwindcss';
+import { blue, green, white } from './lib/tailwindcss';
 import { BallKonva } from './components/konva/ball';
-import { ScoreKonva } from './components/konva/score';
 import { FIELD, Player, Side, SPECS, Vector2D, Velocity } from './lugo';
-import { Snapshot } from './lugo/snapshot';
-// import { useImage } from './hooks/use-image';
-// import gramaImage from './assets/grama.jpg';
+import { useReplay } from './hooks/use-replay';
+import { BallInfoKonva } from './components/konva/ball-info';
+import { BallDirectionKonva } from './components/konva/ball-direction';
+import { PlayerInfoKonva } from './components/konva/player-info';
+import { GoalkeeperKonva } from './components/konva/goalkeeper';
+import { BallGoalZoneStateKonva } from './components/konva/ball-goal-zone-state';
 
-export function Replay({ game_snapshot }: { game_snapshot: Snapshot | null }) {
-    // const [showGrama, setShowGrama] = useState(false);
-    // const image = useImage(gramaImage);
+export function Replay() {
     const {
         setZoomInDecimal,
         stageRef,
@@ -25,6 +25,15 @@ export function Replay({ game_snapshot }: { game_snapshot: Snapshot | null }) {
         showBackground,
     } = useBaseStage();
     const size = useWindowSize();
+    const {
+        currentGameSnapshot,
+        gameSnapshots,
+        replayView,
+        showBallInfo,
+        showBallDirection,
+        showHomeInfo,
+        showAwayInfo,
+    } = useReplay();
 
     const [backgroundProps, setBackgroundProps] = useState({
         x: 0,
@@ -58,22 +67,18 @@ export function Replay({ game_snapshot }: { game_snapshot: Snapshot | null }) {
     }, []);
 
     const homePlayers =
-        game_snapshot && game_snapshot.getHomeTeam().getPlayers()
-            ? game_snapshot.getHomeTeam().getPlayers()
+        currentGameSnapshot && currentGameSnapshot.getHomeTeam().getPlayers()
+            ? currentGameSnapshot.getHomeTeam().getPlayers()
             : makeDefaultPlayers(Side.HOME, blue('500'));
     const awayPlayers =
-        game_snapshot && game_snapshot.getAwayTeam().getPlayers()
-            ? game_snapshot.getAwayTeam().getPlayers()
+        currentGameSnapshot && currentGameSnapshot.getAwayTeam().getPlayers()
+            ? currentGameSnapshot.getAwayTeam().getPlayers()
             : makeDefaultPlayers(Side.AWAY, green('500'));
-
-    // const patternSize = 50;
-
-    // if (!game_snapshot) return null;
 
     return (
         <div style={{ backgroundColor }}>
             <Stage width={size.width!} height={size.height!} ref={stageRef} scaleY={-1}>
-                <Layer scaleY={-1}>
+                <Layer>
                     {showBackground && (
                         <Rect
                             x={backgroundProps.x}
@@ -85,33 +90,80 @@ export function Replay({ game_snapshot }: { game_snapshot: Snapshot | null }) {
                     )}
                 </Layer>
                 <Layer scaleY={-1}>
-                    {/* {image && showGrama && (
-                        <Image
-                            x={backgroundProps.x}
-                            y={backgroundProps.y}
-                            width={backgroundProps.width}
-                            height={backgroundProps.height}
-                            image={image}
-                            fillPatternImage={image}
-                            fillPatternRepeat="repeat"
-                            fillPatternScaleX={backgroundProps.width / patternSize}
-                            fillPatternScaleY={backgroundProps.height / patternSize}
-                        />
-                    )} */}
                     <FieldKonva />
-                    {homePlayers.map((player) => {
-                        player.setColor(blue());
-                        return <PlayerKonva key={player.getNumber()} player={player} />;
-                    })}
-                    {awayPlayers.map((player) => {
-                        player.setColor(green());
-                        return <PlayerKonva key={player.getNumber()} player={player} />;
-                    })}
-                    {game_snapshot?.getBall() && <BallKonva ball={game_snapshot.getBall()} />}
-                    <ScoreKonva
-                        home={game_snapshot?.getHomeTeam().getScore() ?? 0}
-                        away={game_snapshot?.getAwayTeam().getScore() ?? 0}
-                    />
+
+                    {replayView === 'ball-heatmap' && (
+                        <Fragment>
+                            {gameSnapshots.map((snapshot) => {
+                                if (snapshot.getTurn() <= (currentGameSnapshot?.getTurn() ?? 0)) {
+                                    return (
+                                        <Circle
+                                            key={snapshot.getUuid()}
+                                            x={snapshot.getBall().getPosition().getX()}
+                                            y={snapshot.getBall().getPosition().getY()}
+                                            height={SPECS.BALL_SIZE}
+                                            width={SPECS.BALL_SIZE}
+                                            fill={white(0.04)}
+                                        />
+                                    );
+                                }
+                            })}
+                        </Fragment>
+                    )}
+
+                    {replayView === 'game' && (
+                        <Fragment>
+                            {homePlayers.map((player) => {
+                                player.setColor(blue());
+
+                                return (
+                                    <Fragment key={player.getNumber()}>
+                                        {player.isGoalkeeper() ? (
+                                            <GoalkeeperKonva player={player} />
+                                        ) : (
+                                            <PlayerKonva player={player} />
+                                        )}
+                                        {showHomeInfo && (
+                                            <PlayerInfoKonva
+                                                key={`home-player-info-${player.getNumber()}`}
+                                                player={player}
+                                            />
+                                        )}
+                                    </Fragment>
+                                );
+                            })}
+                            {awayPlayers.map((player) => {
+                                player.setColor(green());
+                                return (
+                                    <Fragment key={player.getNumber()}>
+                                        {player.isGoalkeeper() ? (
+                                            <GoalkeeperKonva player={player} />
+                                        ) : (
+                                            <PlayerKonva player={player} />
+                                        )}
+
+                                        {showAwayInfo && (
+                                            <PlayerInfoKonva
+                                                key={`away-player-info-${player.getNumber()}`}
+                                                player={player}
+                                            />
+                                        )}
+                                    </Fragment>
+                                );
+                            })}
+                        </Fragment>
+                    )}
+
+                    {currentGameSnapshot?.getBall() && (
+                        <Fragment>
+                            {showBallDirection && (
+                                <BallDirectionKonva ball={currentGameSnapshot.getBall()} />
+                            )}
+                            <BallKonva ball={currentGameSnapshot.getBall()} />
+                            <BallGoalZoneStateKonva />
+                            {showBallInfo && <BallInfoKonva ball={currentGameSnapshot.getBall()} />}
+                        </Fragment>
+                    )}
                 </Layer>
             </Stage>
         </div>

@@ -1,9 +1,10 @@
-import { PauseIcon, PlayIcon, RedoDotIcon, UndoDotIcon } from 'lucide-react';
 import { Button } from './ui/button';
 import { useReplay } from '@/hooks/use-replay';
 import { Slider } from './ui/slider';
 import { MenuSettings } from './menu-settings';
 import { MenuPrintScreen } from './menu-print-screen';
+import { MenuReplayView } from './menu-view';
+import { LuUndoDot, LuPlay, LuPause, LuRedoDot } from 'react-icons/lu';
 
 export function MenuReplay() {
     const {
@@ -26,16 +27,16 @@ export function MenuReplay() {
                     onClick={previousTurn}
                     disabled={state != 'playing' && state != 'paused'}
                 >
-                    <UndoDotIcon className="h-5 w-5" />
+                    <LuUndoDot className="h-5 w-5" />
                 </Button>
                 {(state === 'stopped' || state === 'paused') && (
                     <Button size={'icon'} variant={'outline'} onClick={play}>
-                        <PlayIcon className="h-5 w-5" />
+                        <LuPlay className="h-5 w-5" />
                     </Button>
                 )}
                 {state === 'playing' && (
                     <Button size={'icon'} variant={'outline'} onClick={pause}>
-                        <PauseIcon className="h-5 w-5" />
+                        <LuPause className="h-5 w-5" />
                     </Button>
                 )}
 
@@ -45,22 +46,23 @@ export function MenuReplay() {
                     onClick={nextTurn}
                     disabled={state != 'playing' && state != 'paused'}
                 >
-                    <RedoDotIcon className="h-5 w-5" />
+                    <LuRedoDot className="h-5 w-5" />
                 </Button>
             </div>
             <Slider
                 defaultValue={[0]}
-                max={gameSnapshots.length}
+                max={gameSnapshots.length - 1}
                 value={[currentTurn.index]}
                 step={1}
                 className={'w-full'}
                 onValueChange={(values) => {
                     const snapshot = gameSnapshots[values[0]];
-                    jumpToTurnUuId(snapshot.uuid);
+                    jumpToTurnUuId(snapshot.getUuid());
                 }}
             />
             <div className="flex items-center gap-3">
                 <MenuPrintScreen />
+                <MenuReplayView />
                 <MenuSettings />
             </div>
         </div>

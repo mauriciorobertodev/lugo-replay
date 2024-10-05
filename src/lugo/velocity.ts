@@ -5,7 +5,9 @@ export class Velocity implements IVelocity {
     constructor(
         private direction: Vector2D = new Vector2D(),
         private speed: number = 0,
-    ) {}
+    ) {
+        this.direction.normalize();
+    }
 
     getDirection(): Vector2D {
         return this.direction;

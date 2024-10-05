@@ -9,6 +9,8 @@ export type ReplayState = 'playing' | 'paused' | 'stopped';
 
 export type FileStatus = 'idle' | 'loading' | 'completed';
 
+export type ReplayView = 'game' | 'ball-heatmap';
+
 type ReplayValues = {
     state: ReplayState;
     setState: React.Dispatch<React.SetStateAction<ReplayState>>;
@@ -22,6 +24,21 @@ type ReplayValues = {
         index: number;
         uuid: string;
     };
+    replayView: ReplayView;
+    setReplayView: React.Dispatch<React.SetStateAction<ReplayView>>;
+
+    showBallInfo: boolean;
+    setShowBallInfo: React.Dispatch<React.SetStateAction<boolean>>;
+
+    showBallDirection: boolean;
+    setShowBallDirection: React.Dispatch<React.SetStateAction<boolean>>;
+
+    showHomeInfo: boolean;
+    setShowHomeInfo: React.Dispatch<React.SetStateAction<boolean>>;
+
+    showAwayInfo: boolean;
+    setShowAwayInfo: React.Dispatch<React.SetStateAction<boolean>>;
+
     jumpToTurnUuId(turnUuid: string): void;
     handleDrop: (files: File[]) => void;
     jumpToTurn(turn: number): void;
@@ -47,6 +64,11 @@ const intervalMap: { [key: number]: number } = {
 export function ReplayProvider({ children }: PropsWithChildren) {
     const [state, setState] = useState<ReplayState>('stopped');
     const [fileStatus, setFileStatus] = useState<FileStatus>('idle');
+    const [replayView, setReplayView] = useState<ReplayView>('game');
+    const [showBallInfo, setShowBallInfo] = useState(false);
+    const [showBallDirection, setShowBallDirection] = useState(false);
+    const [showHomeInfo, setShowHomeInfo] = useState(false);
+    const [showAwayInfo, setShowAwayInfo] = useState(false);
     const [progress, setProgress] = useState(0);
     const [gameSnapshots, setGameSnapshots] = useState<Snapshot[]>([]);
     const [currentGameSnapshot, setCurrentGameSnapshot] = useState<Snapshot | null>(null);
@@ -77,6 +99,7 @@ export function ReplayProvider({ children }: PropsWithChildren) {
                             decoded.game_snapshot.state != 'PLAYING'
                         ) {
                             decoded.game_snapshot.uuid = randomUUID();
+                            console.log(decoded.game_snapshot);
                             return new Snapshot(decoded.game_snapshot);
                         }
                     })
@@ -150,7 +173,7 @@ export function ReplayProvider({ children }: PropsWithChildren) {
             }
 
             setCurrentTurn((prevCurrentTurn) => {
-                const nextIndex = prevCurrentTurn.index + 1;
+                const nextIndex = Math.min(prevCurrentTurn.index + 1, gameSnapshots.length - 1);
                 setCurrentGameSnapshot(gameSnapshots[nextIndex]);
                 return { index: nextIndex, uuid: gameSnapshots[nextIndex].getUuid() };
             });
@@ -209,6 +232,20 @@ export function ReplayProvider({ children }: PropsWithChildren) {
                 currentGameSnapshot,
                 handleDrop,
                 jumpToTurn,
+
+                showBallInfo,
+                setShowBallInfo,
+
+                showBallDirection,
+                setShowBallDirection,
+
+                showHomeInfo,
+                setShowHomeInfo,
+                showAwayInfo,
+                setShowAwayInfo,
+
+                replayView,
+                setReplayView,
                 play,
                 pause,
                 stop,
