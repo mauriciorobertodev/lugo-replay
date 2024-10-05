@@ -1,27 +1,17 @@
-import { Rect, Line, Circle, Arc } from 'react-konva';
-import {
-    AWAY_GOAL_BOTTOM,
-    AWAY_GOAL_CENTER,
-    AWAY_GOAL_TOP,
-    BALL_RADIUS,
-    FIELD_CENTER_RADIUS,
-    FIELD_HEIGHT,
-    FIELD_POINT_CENTER,
-    FIELD_WIDTH,
-    GOAL_RADIUS,
-    HOME_GOAL_BOTTOM,
-    HOME_GOAL_CENTER,
-    HOME_GOAL_TOP,
-} from '@/lib/specs';
+import { Rect, Line, Circle, Arc, Group } from 'react-konva';
 import { white } from '@/lib/tailwindcss';
+import { FIELD } from '@/lugo/field';
+import { Goal } from '@/lugo/goal';
 
 export function FieldKonva({ strokeWidth = 20 }: { strokeWidth?: number }) {
+    const HOME_GOAL = Goal.HOME();
+    const AWAY_GOAL = Goal.AWAY();
     return (
-        <>
+        <Group>
             {/* laterais */}
             <Rect
-                width={FIELD_WIDTH}
-                height={FIELD_HEIGHT}
+                width={FIELD.MAX_X}
+                height={FIELD.MAX_Y}
                 stroke={white()}
                 x={0}
                 y={0}
@@ -30,78 +20,78 @@ export function FieldKonva({ strokeWidth = 20 }: { strokeWidth?: number }) {
 
             {/* linha central */}
             <Line
-                points={[FIELD_POINT_CENTER.x, 0, FIELD_POINT_CENTER.x, FIELD_HEIGHT]}
+                points={[FIELD.POINT_CENTER.getX(), 0, FIELD.POINT_CENTER.getX(), FIELD.MAX_Y]}
                 stroke={white()}
                 strokeWidth={strokeWidth}
             />
 
             {/* centro do campo */}
             <Circle
-                x={FIELD_POINT_CENTER.x}
-                y={FIELD_POINT_CENTER.y}
-                radius={FIELD_CENTER_RADIUS}
+                x={FIELD.POINT_CENTER.getX()}
+                y={FIELD.POINT_CENTER.getY()}
+                radius={FIELD.CENTER_RADIUS}
                 stroke={white()}
                 strokeWidth={strokeWidth}
             />
 
             {/* bolinha central */}
             <Circle
-                x={FIELD_POINT_CENTER.x}
-                y={FIELD_POINT_CENTER.y}
-                radius={BALL_RADIUS / 2}
+                x={FIELD.POINT_CENTER.getX()}
+                y={FIELD.POINT_CENTER.getY()}
+                radius={100}
                 fill={white()}
             />
 
             {/* travessões do gol home */}
             <Line
                 points={[
-                    HOME_GOAL_TOP.x - 100,
-                    HOME_GOAL_TOP.y,
-                    HOME_GOAL_TOP.x + 100,
-                    HOME_GOAL_TOP.y,
+                    HOME_GOAL.getTopPole().getX() - 100,
+                    HOME_GOAL.getTopPole().getY(),
+                    HOME_GOAL.getTopPole().getX() + 100,
+                    HOME_GOAL.getTopPole().getY(),
                 ]}
                 stroke={white()}
                 strokeWidth={strokeWidth}
             />
             <Line
                 points={[
-                    HOME_GOAL_CENTER.x - 100,
-                    HOME_GOAL_CENTER.y,
-                    HOME_GOAL_CENTER.x + 100,
-                    HOME_GOAL_CENTER.y,
+                    HOME_GOAL.getCenter().getX() - 100,
+                    HOME_GOAL.getCenter().getY(),
+                    HOME_GOAL.getCenter().getX() + 100,
+                    HOME_GOAL.getCenter().getY(),
                 ]}
                 stroke={white()}
                 strokeWidth={strokeWidth}
             />
             <Line
                 points={[
-                    HOME_GOAL_BOTTOM.x - 100,
-                    HOME_GOAL_BOTTOM.y,
-                    HOME_GOAL_BOTTOM.x + 100,
-                    HOME_GOAL_BOTTOM.y,
+                    HOME_GOAL.getBottomPole().getX() - 100,
+                    HOME_GOAL.getBottomPole().getY(),
+                    HOME_GOAL.getBottomPole().getX() + 100,
+                    HOME_GOAL.getBottomPole().getY(),
                 ]}
                 stroke={white()}
                 strokeWidth={strokeWidth}
             />
 
             <Arc
-                x={HOME_GOAL_TOP.x}
-                y={HOME_GOAL_TOP.y}
+                x={HOME_GOAL.getTopPole().getX()}
+                y={HOME_GOAL.getTopPole().getY()}
                 angle={90}
                 rotation={360}
-                innerRadius={GOAL_RADIUS - 1}
-                outerRadius={GOAL_RADIUS}
+                innerRadius={FIELD.GOAL_RADIUS - 1}
+                outerRadius={FIELD.GOAL_RADIUS}
                 stroke={white()}
                 strokeWidth={strokeWidth}
                 fillEnabled={false}
             />
             <Arc
-                x={HOME_GOAL_BOTTOM.x}
-                y={HOME_GOAL_BOTTOM.y}
+                x={HOME_GOAL.getBottomPole().getX()}
+                y={HOME_GOAL.getBottomPole().getY()}
                 angle={90}
                 rotation={-90}
-                innerRadius={GOAL_RADIUS - 1}
-                outerRadius={GOAL_RADIUS}
+                innerRadius={FIELD.GOAL_RADIUS - 1}
+                outerRadius={FIELD.GOAL_RADIUS}
                 stroke={white()}
                 strokeWidth={strokeWidth}
                 fillEnabled={false}
@@ -109,10 +99,10 @@ export function FieldKonva({ strokeWidth = 20 }: { strokeWidth?: number }) {
 
             <Line
                 points={[
-                    HOME_GOAL_TOP.x + GOAL_RADIUS,
-                    HOME_GOAL_TOP.y,
-                    HOME_GOAL_BOTTOM.x + GOAL_RADIUS,
-                    HOME_GOAL_BOTTOM.y,
+                    HOME_GOAL.getTopPole().getX() + FIELD.GOAL_RADIUS,
+                    HOME_GOAL.getTopPole().getY(),
+                    HOME_GOAL.getBottomPole().getX() + FIELD.GOAL_RADIUS,
+                    HOME_GOAL.getBottomPole().getY(),
                 ]}
                 stroke={white()}
                 strokeWidth={strokeWidth}
@@ -121,30 +111,30 @@ export function FieldKonva({ strokeWidth = 20 }: { strokeWidth?: number }) {
             {/* travessões do gol home */}
             <Line
                 points={[
-                    AWAY_GOAL_TOP.x - 100,
-                    AWAY_GOAL_TOP.y,
-                    AWAY_GOAL_TOP.x + 100,
-                    AWAY_GOAL_TOP.y,
+                    AWAY_GOAL.getTopPole().getX() - 100,
+                    AWAY_GOAL.getTopPole().getY(),
+                    AWAY_GOAL.getTopPole().getX() + 100,
+                    AWAY_GOAL.getTopPole().getY(),
                 ]}
                 stroke={white()}
                 strokeWidth={strokeWidth}
             />
             <Line
                 points={[
-                    AWAY_GOAL_CENTER.x - 100,
-                    AWAY_GOAL_CENTER.y,
-                    AWAY_GOAL_CENTER.x + 100,
-                    AWAY_GOAL_CENTER.y,
+                    AWAY_GOAL.getCenter().getX() - 100,
+                    AWAY_GOAL.getCenter().getY(),
+                    AWAY_GOAL.getCenter().getX() + 100,
+                    AWAY_GOAL.getCenter().getY(),
                 ]}
                 stroke={white()}
                 strokeWidth={strokeWidth}
             />
             <Line
                 points={[
-                    AWAY_GOAL_BOTTOM.x - 100,
-                    AWAY_GOAL_BOTTOM.y,
-                    AWAY_GOAL_BOTTOM.x + 100,
-                    AWAY_GOAL_BOTTOM.y,
+                    AWAY_GOAL.getBottomPole().getX() - 100,
+                    AWAY_GOAL.getBottomPole().getY(),
+                    AWAY_GOAL.getBottomPole().getX() + 100,
+                    AWAY_GOAL.getBottomPole().getY(),
                 ]}
                 stroke={white()}
                 strokeWidth={strokeWidth}
@@ -152,37 +142,37 @@ export function FieldKonva({ strokeWidth = 20 }: { strokeWidth?: number }) {
 
             <Line
                 points={[
-                    AWAY_GOAL_TOP.x - GOAL_RADIUS,
-                    AWAY_GOAL_TOP.y,
-                    AWAY_GOAL_BOTTOM.x - GOAL_RADIUS,
-                    AWAY_GOAL_BOTTOM.y,
+                    AWAY_GOAL.getTopPole().getX() - FIELD.GOAL_RADIUS,
+                    AWAY_GOAL.getTopPole().getY(),
+                    AWAY_GOAL.getBottomPole().getX() - FIELD.GOAL_RADIUS,
+                    AWAY_GOAL.getBottomPole().getY(),
                 ]}
                 stroke={white()}
                 strokeWidth={strokeWidth}
             />
 
             <Arc
-                x={AWAY_GOAL_TOP.x}
-                y={AWAY_GOAL_TOP.y}
+                x={AWAY_GOAL.getTopPole().getX()}
+                y={AWAY_GOAL.getTopPole().getY()}
                 angle={90}
                 rotation={90}
-                innerRadius={GOAL_RADIUS - 1}
-                outerRadius={GOAL_RADIUS}
+                innerRadius={FIELD.GOAL_RADIUS - 1}
+                outerRadius={FIELD.GOAL_RADIUS}
                 stroke={white()}
                 strokeWidth={strokeWidth}
                 fillEnabled={false}
             />
             <Arc
-                x={AWAY_GOAL_BOTTOM.x}
-                y={AWAY_GOAL_BOTTOM.y}
+                x={AWAY_GOAL.getBottomPole().getX()}
+                y={AWAY_GOAL.getBottomPole().getY()}
                 angle={90}
                 rotation={180}
-                innerRadius={GOAL_RADIUS - 1}
-                outerRadius={GOAL_RADIUS}
+                innerRadius={FIELD.GOAL_RADIUS - 1}
+                outerRadius={FIELD.GOAL_RADIUS}
                 stroke={white()}
                 strokeWidth={strokeWidth}
                 fillEnabled={false}
             />
-        </>
+        </Group>
     );
 }

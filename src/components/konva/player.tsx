@@ -1,9 +1,9 @@
-import { Arc, Circle, Group, Rect, Text } from 'react-konva';
-import { GOALKEEPER_NUMBER, GOALKEEPER_WIDTH, PLAYER_RADIUS, PLAYER_SIZE } from '@/lib/specs';
-import { blue, white } from '@/lib/tailwindcss';
-import { getAngleOfVectorInRadians, radiansToDegrees } from '@/lib/math';
+import { Arc, Circle, Group, KonvaNodeEvents, Text } from 'react-konva';
+import { SPECS } from '@/lugo';
+import { white } from '@/lib/tailwindcss';
+import { Player, Point } from '@/lugo';
+import { radiansToDegrees } from '@/lib/math';
 import Konva from 'konva';
-import { Player, Point } from '@/types/game';
 
 export type PlayerState = {
     number: number;
@@ -14,97 +14,54 @@ export type PlayerState = {
 
 export function PlayerKonva({
     player,
-    onClick,
-    onMouseEnter,
-    onMouseLeave,
-    onMouseDown,
-}: {
-    player: Player;
-    onClick?: (evt: Konva.KonvaEventObject<MouseEvent>, player: Player) => void;
-    onMouseEnter?: (evt: Konva.KonvaEventObject<MouseEvent>, player: Player) => void;
-    onMouseLeave?: (evt: Konva.KonvaEventObject<MouseEvent>, player: Player) => void;
-    onMouseDown?: (evt: Konva.KonvaEventObject<MouseEvent>, player: Player) => void;
-}) {
-    const textDimensions = PLAYER_RADIUS + 30;
-
-    const position = player.position;
-    const direction = { x: player.velocity.direction.x ?? 0, y: player.velocity.direction.y ?? 0 };
-    const number = player.number;
-    const color = player.color ?? blue('500');
-    const ANGLE = radiansToDegrees(getAngleOfVectorInRadians(direction));
-
-    if (player.number === GOALKEEPER_NUMBER) {
-        return (
-            <Group
-                onClick={(e) => onClick && onClick(e, player)}
-                onMouseEnter={(e) => onMouseEnter && onMouseEnter(e, player)}
-                onMouseLeave={(e) => onMouseLeave && onMouseLeave(e, player)}
-                onMouseDown={(e) => onMouseDown && onMouseDown(e, player)}
-            >
-                <Rect
-                    x={(position.x ?? 0) - PLAYER_SIZE / 2}
-                    y={(position.y ?? 0) - GOALKEEPER_WIDTH / 2}
-                    fill={white()}
-                    strokeWidth={20}
-                    height={GOALKEEPER_WIDTH}
-                    width={PLAYER_SIZE}
-                    cornerRadius={50}
-                />
-            </Group>
-        );
-    }
+    ...rest
+}: Konva.GroupConfig & KonvaNodeEvents & { player: Player }) {
+    const textDimensions = SPECS.PLAYER_RADIUS + 30;
+    const ANGLE = radiansToDegrees(player.getDirection().angleInRadians());
 
     return (
-        <Group
-            onClick={(e) => onClick && onClick(e, player)}
-            onMouseEnter={(e) => onMouseEnter && onMouseEnter(e, player)}
-            onMouseLeave={(e) => onMouseLeave && onMouseLeave(e, player)}
-            onMouseDown={(e) => onMouseDown && onMouseDown(e, player)}
-        >
+        <Group {...rest} x={player.getPosition().getX()} y={player.getPosition().getY()}>
             <Circle
-                x={position.x}
-                y={position.y}
-                radius={PLAYER_RADIUS}
-                fill={color}
+                x={0}
+                y={0}
+                radius={SPECS.PLAYER_RADIUS}
+                fill={player.getColor()}
                 stroke={white()}
                 strokeWidth={20}
             />
-
             <Arc
-                x={position.x}
-                y={position.y}
+                x={0}
+                y={0}
                 fill={white()}
                 angle={60}
-                innerRadius={PLAYER_RADIUS}
+                innerRadius={SPECS.PLAYER_RADIUS}
                 outerRadius={0}
                 rotation={ANGLE - 60 / 2}
             />
-
             <Circle
-                x={position.x}
-                y={position.y}
-                radius={PLAYER_RADIUS * 0.65}
+                x={0}
+                y={0}
+                radius={SPECS.PLAYER_RADIUS * 0.65}
                 fill={white()}
-                stroke={color}
+                stroke={player.getColor()}
                 strokeWidth={20}
             />
-
             <Text
-                x={position.x}
-                y={position.y}
+                x={0}
+                y={0}
                 width={textDimensions}
                 height={textDimensions}
                 offsetX={textDimensions / 2}
                 offsetY={textDimensions / 2 - 15}
-                text={`${number}`}
-                // scaleY={-1}
-                fill={color}
+                text={`${player.getNumber()}`}
+                fill={player.getColor()}
                 fontSize={200}
                 align="center"
                 verticalAlign="middle"
                 fontStyle="bold"
                 padding={0}
                 lineHeight={100}
+                scaleY={-1}
             />
         </Group>
     );

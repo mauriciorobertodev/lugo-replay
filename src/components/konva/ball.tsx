@@ -1,8 +1,7 @@
 import { Circle, Group } from 'react-konva';
-import { BALL_RADIUS } from '@/lib/specs';
 import { white } from '@/lib/tailwindcss';
 import Konva from 'konva';
-import { Ball, Point } from '@/types/game';
+import { Ball, Point, SPECS } from '@/lugo';
 
 export type PlayerState = {
     number: number;
@@ -24,7 +23,7 @@ export function BallKonva({
     onMouseLeave?: (evt: Konva.KonvaEventObject<MouseEvent>, ball: Ball) => void;
     onMouseDown?: (evt: Konva.KonvaEventObject<MouseEvent>, ball: Ball) => void;
 }) {
-    const position = ball.position;
+    const position = ball.getPosition();
 
     return (
         <Group
@@ -34,9 +33,9 @@ export function BallKonva({
             onMouseDown={(e) => onMouseDown && onMouseDown(e, ball)}
         >
             <Circle
-                x={position.x}
-                y={position.y}
-                radius={BALL_RADIUS}
+                x={position.getX()}
+                y={position.getY()}
+                radius={SPECS.BALL_RADIUS}
                 fill={white()}
                 stroke={white()}
                 strokeWidth={20}

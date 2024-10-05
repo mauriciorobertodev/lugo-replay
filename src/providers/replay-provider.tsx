@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren } from 'react';
 import { useState } from 'react';
 import { decodeGzipBase64, randomUUID } from '@/lib/utils';
-import { GameSnapshot } from '@/types/game';
+import { Snapshot } from '@/lugo/snapshot';
 
 const CHUNK_SIZE = 64 * 1024; // (64 KB)
 
@@ -14,8 +14,8 @@ type ReplayValues = {
     setState: React.Dispatch<React.SetStateAction<ReplayState>>;
     fileStatus: FileStatus;
     progress: number;
-    currentGameSnapshot: GameSnapshot | null;
-    gameSnapshots: GameSnapshot[];
+    currentGameSnapshot: Snapshot | null;
+    gameSnapshots: Snapshot[];
     gameSpeed: number;
     setGameSpeed: React.Dispatch<React.SetStateAction<number>>;
     currentTurn: {
@@ -48,13 +48,13 @@ export function ReplayProvider({ children }: PropsWithChildren) {
     const [state, setState] = useState<ReplayState>('stopped');
     const [fileStatus, setFileStatus] = useState<FileStatus>('idle');
     const [progress, setProgress] = useState(0);
-    const [gameSnapshots, setGameSnapshots] = useState<GameSnapshot[]>([]);
-    const [currentGameSnapshot, setCurrentGameSnapshot] = useState<GameSnapshot | null>(null);
+    const [gameSnapshots, setGameSnapshots] = useState<Snapshot[]>([]);
+    const [currentGameSnapshot, setCurrentGameSnapshot] = useState<Snapshot | null>(null);
     const [gameSpeed, setGameSpeed] = useState(1);
     const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
     const [currentTurn, setCurrentTurn] = useState<{ index: number; uuid: string }>({
         index: 0,
-        uuid: gameSnapshots[0]?.uuid ?? '',
+        uuid: gameSnapshots[0]?.getUuid() ?? '',
     });
 
     const readFileInChunks = (file: File) => {
@@ -77,7 +77,7 @@ export function ReplayProvider({ children }: PropsWithChildren) {
                             decoded.game_snapshot.state != 'PLAYING'
                         ) {
                             decoded.game_snapshot.uuid = randomUUID();
-                            return decoded.game_snapshot;
+                            return new Snapshot(decoded.game_snapshot);
                         }
                     })
                     .filter((line) => !!line);
@@ -114,23 +114,23 @@ export function ReplayProvider({ children }: PropsWithChildren) {
             setFileStatus('loading');
             setProgress(0);
             setGameSnapshots([]);
-            setCurrentTurn({ index: 0, uuid: gameSnapshots[0]?.uuid ?? '' });
+            setCurrentTurn({ index: 0, uuid: gameSnapshots[0]?.getUuid() ?? '' });
             readFileInChunks(files[0]);
         }
     };
 
     function jumpToTurn(turn: number): void {
-        const index = gameSnapshots.findIndex((g) => g.turn === turn);
+        const index = gameSnapshots.findIndex((g) => g.getTurn() === turn);
         if (index !== -1) {
-            setCurrentTurn({ index, uuid: gameSnapshots[index].uuid });
+            setCurrentTurn({ index, uuid: gameSnapshots[index].getUuid() });
             setCurrentGameSnapshot(gameSnapshots[index]);
         }
     }
 
     function jumpToTurnUuId(turnUuid: string): void {
-        const index = gameSnapshots.findIndex((g) => g.uuid === turnUuid);
+        const index = gameSnapshots.findIndex((g) => g.getUuid() === turnUuid);
         if (index !== -1) {
-            setCurrentTurn({ index, uuid: gameSnapshots[index].uuid });
+            setCurrentTurn({ index, uuid: gameSnapshots[index].getUuid() });
             setCurrentGameSnapshot(gameSnapshots[index]);
         }
     }
@@ -152,7 +152,7 @@ export function ReplayProvider({ children }: PropsWithChildren) {
             setCurrentTurn((prevCurrentTurn) => {
                 const nextIndex = prevCurrentTurn.index + 1;
                 setCurrentGameSnapshot(gameSnapshots[nextIndex]);
-                return { index: nextIndex, uuid: gameSnapshots[nextIndex].uuid };
+                return { index: nextIndex, uuid: gameSnapshots[nextIndex].getUuid() };
             });
         }, intervalMap[gameSpeed]);
 
@@ -170,7 +170,7 @@ export function ReplayProvider({ children }: PropsWithChildren) {
         if (intervalId) {
             clearInterval(intervalId);
             setState('stopped');
-            setCurrentTurn({ index: 0, uuid: gameSnapshots[0].uuid });
+            setCurrentTurn({ index: 0, uuid: gameSnapshots[0].getUuid() });
             setCurrentGameSnapshot(gameSnapshots[0] || null);
         }
     }
@@ -180,7 +180,7 @@ export function ReplayProvider({ children }: PropsWithChildren) {
             setCurrentTurn((prevCurrentTurn) => {
                 const nextIndex = prevCurrentTurn.index + 1;
                 setCurrentGameSnapshot(gameSnapshots[nextIndex]);
-                return { index: nextIndex, uuid: gameSnapshots[nextIndex].uuid };
+                return { index: nextIndex, uuid: gameSnapshots[nextIndex].getUuid() };
             });
         }
     }
@@ -190,7 +190,7 @@ export function ReplayProvider({ children }: PropsWithChildren) {
             setCurrentTurn((prevCurrentTurn) => {
                 const prevIndex = prevCurrentTurn.index - 1;
                 setCurrentGameSnapshot(gameSnapshots[prevIndex]);
-                return { index: prevIndex, uuid: gameSnapshots[prevIndex].uuid };
+                return { index: prevIndex, uuid: gameSnapshots[prevIndex].getUuid() };
             });
         }
     }

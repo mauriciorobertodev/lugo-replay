@@ -1,8 +1,8 @@
 import { createContext, createRef, PropsWithChildren } from 'react';
 import Konva from 'konva';
 import { useState, useEffect } from 'react';
-import { Point } from '@/types/game';
 import { useWindowSize } from '@uidotdev/usehooks';
+import { Point } from '@/lugo';
 
 type UseBaseStageValues = {
     stageRef: React.RefObject<Konva.Stage>;
@@ -21,13 +21,13 @@ type UseBaseStageValues = {
 
     showBackground: boolean;
 
+    printScreen(withBackground?: boolean): void;
     setZoom(zoom: number): void;
     setZoomInDecimal(zoom: number): void;
     moveTo(x: number, y: number): void;
     scaleForScreen(width: number, height: number, padding?: number): number;
     centerScreenOnObject(x: number, y: number, width: number, height: number): void;
     getMouseWorldPosition(): Point;
-    printScreen(withBackground?: boolean): void;
 };
 
 export const BaseStageContext = createContext<UseBaseStageValues | undefined>(undefined);
@@ -94,8 +94,8 @@ export function BaseStageProvider({ children }: PropsWithChildren) {
 
         // Calcula a nova posição do stage para centralizar o objeto na tela
         const newStageX = screenWidth / 2 - centerX * stage.scaleX();
-        // Ajusta o cálculo da posição Y, levando em consideração a inversão do eixo
-        const newStageY = screenHeight / 2 - centerY * stage.scaleY();
+        // Inverte o cálculo da posição Y para considerar a inversão do eixo
+        const newStageY = screenHeight / 2 + centerY * stage.scaleY();
 
         // Define a posição do stage
         stage.position({ x: newStageX, y: newStageY });
@@ -155,6 +155,9 @@ export function BaseStageProvider({ children }: PropsWithChildren) {
             y: startStagePos.y + dy,
         });
         stage.batchDraw();
+        if (masterKeyPressed && stageRef.current) {
+            stageRef.current.container().style.cursor = 'grabbing';
+        }
     };
 
     const handleMouseUp = () => {
@@ -162,22 +165,24 @@ export function BaseStageProvider({ children }: PropsWithChildren) {
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.code === 'Space') {
+        if (e.code === 'Space' && stageRef.current) {
+            stageRef.current.container().style.cursor = 'grab';
             setIsMasterKeyPressed(true);
         }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-        if (e.code === 'Space') {
+        if (e.code === 'Space' && stageRef.current) {
+            stageRef.current.container().style.cursor = 'default';
             setIsMasterKeyPressed(false);
         }
     };
 
     const getMouseWorldPosition = () => {
-        if (!stageRef.current) return { x: 0, y: 0 };
+        if (!stageRef.current) return new Point();
         const stage = stageRef.current;
         const canvasPos = stage.getRelativePointerPosition()!;
-        return { x: canvasPos.x, y: -canvasPos.y };
+        return new Point(canvasPos.x, -canvasPos.y);
     };
 
     function printScreen(withBackground: boolean = false) {
@@ -231,17 +236,18 @@ export function BaseStageProvider({ children }: PropsWithChildren) {
                 startStagePos,
                 masterKeyPressed,
 
-                showBackground,
                 backgroundColor,
                 setBackgroundColor,
 
+                showBackground,
+
+                printScreen,
                 setZoom,
                 setZoomInDecimal,
                 moveTo,
                 scaleForScreen,
                 centerScreenOnObject,
                 getMouseWorldPosition,
-                printScreen,
             }}
         >
             {children}

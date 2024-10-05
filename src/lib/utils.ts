@@ -35,3 +35,18 @@ export function randomUUID(): string {
         return v.toString(16);
     });
 }
+
+export async function checkScreenCapturePermission() {
+    try {
+        // Tenta acessar a tela para verificar permissões
+        const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+
+        // Se conseguiu acesso, fecha a stream e retorna verdadeiro
+        stream.getTracks().forEach((track) => track.stop());
+        return true;
+    } catch (error) {
+        console.log(error);
+        // Se der erro, significa que não temos permissão
+        return false;
+    }
+}

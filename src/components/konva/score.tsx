@@ -1,7 +1,6 @@
 import { Text } from 'react-konva';
-import { FIELD_POINT_CENTER } from '@/lib/specs';
 import { white } from '@/lib/tailwindcss';
-import { Point } from '@/types/game';
+import { FIELD, Point, SPECS } from '@/lugo';
 
 export type PlayerState = {
     number: number;
@@ -22,7 +21,7 @@ export function ScoreKonva({ home, away }: { home: number; away: number }) {
     const maxWidth = Math.max(home.toString().length, away.toString().length);
     const formattedHome = formatNumber(home, maxWidth);
     const formattedAway = formatNumber(away, maxWidth);
-    const position = { x: FIELD_POINT_CENTER.x, y: 0 + 700 };
+    const position = { x: FIELD.POINT_CENTER.getX(), y: SPECS.MAX_Y_COORDINATE - 700 };
 
     return (
         <Text
@@ -41,6 +40,7 @@ export function ScoreKonva({ home, away }: { home: number; away: number }) {
             fontStyle="bold"
             padding={0}
             lineHeight={100}
+            scaleY={-1}
         />
     );
 }
